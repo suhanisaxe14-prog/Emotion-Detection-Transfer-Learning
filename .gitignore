@@ -1,0 +1,6 @@
+.venv/
+archive (2)/
+data/
+screenshot.png
+__pycache__/
+.ipynb_checkpoints/
