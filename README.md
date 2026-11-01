@@ -109,30 +109,6 @@ Controls: `q` quit · `s` save a screenshot.
 
 ---
 
-## 🚀 Getting started
-
-### 1. Clone and install
-```bash
-git clone https://github.com/suhanisaxe14-prog/Emotion-Detection-Transfer-Learning.git
-cd Emotion-Detection-Transfer-Learning
-pip install tensorflow "opencv-python<5" matplotlib numpy
-```
-> Use `opencv-python<5`: version 5 does not include `CascadeClassifier`, which the webcam demo needs.
-
-### 2. Get the data
-Download FER-2013 from Kaggle and extract it so the folder looks like:
-```
-archive (2)/
-├── train/  angry/ disgust/ fear/ happy/ neutral/ sad/ surprise/
-└── test/   angry/ disgust/ fear/ happy/ neutral/ sad/ surprise/
-```
-Set `DATA_FOLDER` in the settings cell if your folder is named differently.
-
-### 3. Run
-Open `Emotion_Detection_transfer_learning.ipynb` and run the cells in order. This trains the model, saves `emotion_model.keras` and `class_names.json`, then launches the webcam demo (needs a webcam; click the video window and press `q` to quit).
-
----
-
 ## 📁 Repository structure
 ```
 ├── Emotion_Detection_transfer_learning.ipynb   # data → model → training → evaluation → live demo
@@ -140,29 +116,3 @@ Open `Emotion_Detection_transfer_learning.ipynb` and run the cells in order. Thi
 ├── class_names.json                            # label order shared by training and live demo
 └── README.md
 ```
-
----
-
-## 🔭 Roadmap (planned improvements)
-- [ ] **Handle class imbalance**: class weights or oversampling for rare emotions
-- [ ] **Per-class metrics**: confusion matrix, precision/recall/F1 for each emotion
-- [ ] **Separate validation split** so the test set stays untouched
-- [ ] **Stronger backbones and higher resolution** (e.g. EfficientNet, 128×128+), plus longer fine-tuning with LR scheduling
-- [ ] **Temporal smoothing** of predictions across frames for steadier live output
-- [ ] **Better face detection** (e.g. DNN/MediaPipe-based) than Haar Cascade
-- [ ] **Web app**: Streamlit or Flask demo with image upload and webcam
-- [ ] **Export to TFLite** for mobile and edge deployment
-
----
-
-## ⚠️ Ethical note
-Facial emotion recognition is an **approximation** based on facial expression. It does not read a person's true inner state, and accuracy varies across people and conditions. Use it only with **informed consent**, and not for high-stakes decisions such as hiring, grading or surveillance.
-
----
-
-## 👩‍💻 Author
-**Suhani Saxena (Tisha)**: B.Tech (AI & Data Science), Mahakal Institute of Technology, Ujjain (RGPV)
-GitHub: [@suhanisaxe14-prog](https://github.com/suhanisaxe14-prog)
-
-## 🙏 Acknowledgements
-- FER-2013 dataset (Kaggle) · MobileNetV2 (Sandler et al., 2018) · TensorFlow/Keras and OpenCV communities.
