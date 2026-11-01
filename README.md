@@ -1,118 +1,124 @@
-# 🎭 EmotionLens: Real-Time Facial Emotion Recognition with Transfer Learning
+# 🎭 EmotionLens
 
-**EmotionLens** is an end-to-end computer-vision project that detects a face from a live webcam feed and classifies the person's emotion in real time into **7 categories** (angry, disgust, fear, happy, neutral, sad, surprise). It uses **MobileNetV2** (ImageNet pre-trained) with a two-phase **transfer learning + fine-tuning** pipeline, trained on **FER-2013**.
+### 👁️ Real-Time Facial Emotion Recognition with MobileNetV2 Transfer Learning & OpenCV
 
-> **From training to a live demo**: the notebook covers the whole workflow: data pipeline → augmentation → transfer learning → fine-tuning → evaluation → model export → **real-time webcam inference with live probability bars**.
+**A computer-vision application that finds faces in a live webcam feed and reads their expressions, using a fine-tuned deep-learning model.** 🚀
+
+---
+
+## 🎯 About the Project
+
+EmotionLens classifies facial expressions into **7 emotions**: `angry`, `disgust`, `fear`, `happy`, `neutral`, `sad` and `surprise`. It works on image folders for training and on a **live webcam stream** for real-time use.
+
+Instead of training a large network from scratch, the project borrows the visual knowledge of **MobileNetV2** (pre-trained on ImageNet) and teaches it to read faces in two stages: first a new classifier head, then a careful fine-tuning of the backbone. The result is lightweight enough for real-time use on an ordinary laptop.
+
+The aim is a complete workflow: **data → model → evaluation → saved model → working live demo**, not just a score in a notebook.
+
+## ✨ Key Features
+
+- 🎭 **7-class emotion recognition** on the FER-2013 dataset
+- 🧠 **Transfer learning** with pre-trained MobileNetV2
+- 🔧 **Two-phase training**: feature extraction, then fine-tuning the last 30 layers
+- 🔄 **Built-in augmentation** (flip, rotation, zoom) for better generalisation
+- 👤 **Automatic face detection** with OpenCV Haar Cascades
+- 📹 **Live webcam inference** with colour-coded boxes and confidence scores
+- 📊 **Live probability bars** for all 7 emotions on screen
+- 📸 **Screenshot hotkey** (`s`) and clean quit (`q`)
+- 💾 **Model and label export** (`emotion_model.keras`, `class_names.json`)
+
+## 🛠️ Technologies Used
+
+| Technology | Role in the project |
+|---|---|
+| 🐍 Python | Core language |
+| 🧠 TensorFlow & Keras | Model building, training, fine-tuning |
+| 📱 MobileNetV2 | Pre-trained backbone for feature extraction |
+| 👁️ OpenCV | Face detection and real-time video |
+| 🔢 NumPy | Array and probability handling |
+| 📊 Matplotlib | Training curves and visual results |
+| 📓 Jupyter Notebook | Development and experimentation |
+
+## 🗂️ Dataset
+
+**FER-2013** (Facial Expression Recognition, Kaggle)
 
 | | |
 |---|---|
-| **Task** | Multi-class image classification (7 emotions) |
-| **Base model** | MobileNetV2 (ImageNet weights), a lightweight architecture suited to edge and real-time use |
-| **Dataset** | FER-2013, 28,709 train / 7,178 test images |
-| **Training strategy** | Phase A: feature extraction → Phase B: fine-tuning the last 30 layers |
-| **Deployment** | Live webcam inference with OpenCV (face detection + emotion overlay) |
-| **Final accuracy** | **51.9 %** on the 7,178-image test set (see [honest evaluation](#-results--honest-evaluation)) |
-
----
-
-## 🎯 Objective
-
-Understanding emotion from faces is useful wherever software has to respond to people. Typical applications:
-
-- 📞 **Customer experience**: gauging sentiment in video support and service
-- 🎓 **EdTech**: engagement and attention feedback in online classes
-- 🧠 **Wellbeing and HCI**: emotion-aware apps and adaptive interfaces
-- 🚗 **Automotive**: driver-state awareness
-- 🎮 **Gaming and interactive media**: reactive experiences
-- 🛍️ **Market research**: reaction analysis (with consent)
-
-**What this project aims to do**
-1. Build an accurate, *lightweight* emotion classifier using transfer learning instead of training a huge network from scratch.
-2. Show the full path from a trained model to a **working real-time application**, not just a notebook score.
-3. Evaluate the result honestly, including class imbalance and the limits of the dataset.
-
----
-
-## 🗂️ Dataset: FER-2013
-
-[FER-2013 on Kaggle](https://www.kaggle.com/datasets/msambare/fer2013) (Facial Expression Recognition 2013): small face crops labelled with one of seven emotions.
-
-| Property | Value |
-|---|---|
-| Train images | 28,709 |
+| Training images | 28,709 |
 | Test images | 7,178 |
-| Classes | 7: `angry, disgust, fear, happy, neutral, sad, surprise` |
-| Source format | Small grayscale face images in class folders (`train/<emotion>/`, `test/<emotion>/`) |
-| Used as | Resized to **96 × 96**, converted to **RGB** (MobileNetV2 expects 3 channels) |
-| Known issue | **Class imbalance** (far more `happy` than `disgust`) and noisy, in-the-wild labels |
+| Classes | 7 emotions |
+| Preprocessing | Resized to 96 × 96, converted to RGB |
+| Challenge | Imbalanced classes (many more `happy` than `disgust`) and noisy real-world labels |
 
----
+## ⚙️ How It Works
 
-## 🧠 Approach
+📸 **Webcam frame**
+⬇️
+👤 **Haar Cascade finds the face**
+⬇️
+✂️ **Crop → grayscale → resize 96×96 → RGB**
+⬇️
+🧠 **MobileNetV2 extracts facial features**
+⬇️
+🎯 **Softmax gives 7 emotion probabilities**
+⬇️
+🖥️ **Box, label, confidence and live bars drawn on the video**
 
-### 1. Data pipeline
-- `keras.utils.image_dataset_from_directory` loads the folders into batched `tf.data` datasets (batch size 64, 96×96, RGB, one-hot labels).
-- Class names are saved to `class_names.json` so the **live demo uses exactly the same label order as training**.
+## 🧠 Model Architecture
 
-### 2. Model architecture
 ```
-Input (96×96×3)
-→ Data augmentation (RandomFlip horizontal · RandomRotation 0.1 · RandomZoom 0.1)
-→ Rescaling to [-1, 1]  (the preprocessing MobileNetV2 expects)
-→ MobileNetV2 backbone (ImageNet weights, include_top=False)
-→ GlobalAveragePooling2D
-→ Dropout(0.3)
-→ Dense(7, softmax)
+Input 96×96×3
+ → Augmentation (RandomFlip · RandomRotation 0.1 · RandomZoom 0.1)
+ → Rescaling to [-1, 1]
+ → MobileNetV2 (ImageNet weights)
+ → GlobalAveragePooling2D
+ → Dropout (0.3)
+ → Dense (7, softmax)
 ```
-Total about **2.27 M parameters**; only **8,967** are trained in phase A.
 
-### 3. Two-phase transfer learning
-| Phase | What is trained | Learning rate | Epochs |
+| Detail | Value |
+|---|---|
+| Total parameters | about 2.27 M |
+| Trainable in Phase A | 8,967 (head only) |
+| Loss | Categorical cross-entropy |
+| Optimizer | Adam |
+
+### 🔁 Training strategy
+
+| Phase | What learns | Learning rate | Epochs |
 |---|---|---|---|
-| **A: Feature extraction** | Only the new classifier head (backbone frozen) | 1e-3 | 15 |
-| **B: Fine-tuning** | Last **30 layers** of MobileNetV2 + head (early layers stay frozen) | 1e-5 | 15 |
+| **A: Feature extraction** | New classifier head only | 1e-3 | 15 |
+| **B: Fine-tuning** | Last 30 backbone layers + head | 1e-5 | 15 |
 
-The tiny fine-tuning learning rate stops the pre-trained features from being destroyed while adapting them to faces.
+A very small learning rate in Phase B adapts the pre-trained features to faces without wiping out what they already know.
 
-### 4. Real-time inference (live demo)
-A four-step loop runs on every webcam frame:
-1. **Detect** faces with OpenCV's Haar Cascade (`haarcascade_frontalface_default.xml`)
-2. **Crop and preprocess** the face the same way as the training images (grayscale → resize 96×96 → RGB)
-3. **Predict** the emotion with the trained model
-4. **Render** a colour-coded bounding box, the emotion label with confidence, and **live probability bars for all 7 emotions**
-
-Controls: `q` quit · `s` save a screenshot.
-
----
-
-## 📊 Results & honest evaluation
+## 📈 Model Evaluation
 
 | Stage | Test accuracy |
 |---|---|
 | Phase A: frozen backbone | about 43 % |
-| **Phase B: after fine-tuning** | **51.9 %** (loss 1.275) |
+| **Phase B: fine-tuned** | **51.9 %** (loss 1.275) |
 
-**Fine-tuning gave about 9 points** over the frozen-backbone result (about 43 % → 51.9 %), which shows that adapting the pre-trained features to faces matters.
+- ✅ Fine-tuning improved accuracy by roughly **9 percentage points**.
+- ✅ Random guessing over 7 classes gives about 14 %, so the model has learned real facial cues.
+- ⚠️ FER-2013 is a **hard, noisy benchmark** (low resolution, ambiguous expressions, imperfect labels).
+- ⚠️ The dataset is **imbalanced**, so overall accuracy hides weaker results on rare emotions.
+- ⚠️ The test folder is also used as validation during training, so 51.9 % is a development benchmark. A separate validation split is the next improvement.
 
-**How to read the number**
-- Seven-class random guessing is about 14 %, so the model has learned real signal.
-- FER-2013 is a **hard, noisy benchmark**: low-resolution images, ambiguous expressions and imperfect labels cap what simple pipelines reach.
-- Accuracy hides weak spots: the dataset is **imbalanced**, so rare classes such as `disgust` and `fear` are harder than `happy`.
-- The `test` folder doubles as the validation set in this notebook, so the score is a **development benchmark**, not a final blind test.
+<!-- After running evaluation_cells.py, paste here: per-class precision/recall/F1 table, confusion matrix image, most confused pairs -->
 
-> This is a **working baseline with a clear improvement path**, not a production-grade classifier. See the roadmap below.
+
+
+## 👩‍💻 Connect With Me
+
+**Suhani Saxena**
+💡 B.Tech (AI & Data Science) · Aspiring AI/ML Engineer
+
+- 🐙 **GitHub:** [suhanisaxe14-prog](https://github.com/suhanisaxe14-prog)
+- 💼 **LinkedIn:** https://www.linkedin.com/in/suhani-saxena-735472311/
+- 📧 **Email:** suhanisaxena1603@gmail.com
 
 ---
 
-## 🛠️ Tech stack
-**Python** · **TensorFlow / Keras** (MobileNetV2, transfer learning) · **OpenCV** (face detection, live video) · **NumPy** · **Matplotlib**
+### 🚀 Turning pre-trained intelligence into real-time understanding
 
----
-
-## 📁 Repository structure
-```
-├── Emotion_Detection_transfer_learning.ipynb   # data → model → training → evaluation → live demo
-├── emotion_model.keras                         # trained model (generated by the notebook)
-├── class_names.json                            # label order shared by training and live demo
-└── README.md
-```
